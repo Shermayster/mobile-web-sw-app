@@ -23,8 +23,7 @@ self.addEventListener('install', event => {
         './scripts/restaurant_info.js',
         './styles/styles.css',
         './styles/styles-medium.css',
-        'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css',
-        'https://unpkg.com/rxjs/bundles/rxjs.umd.min.js'
+        'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css'
       ]);
     })
     .catch(err => console.log('sw install error: ', err))
