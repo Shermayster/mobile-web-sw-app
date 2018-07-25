@@ -149,12 +149,14 @@ function syncDeleteReviews() {
     })
 }
 
-function syncSubmittedPosts(){
+function syncSubmittedPosts() {
   readAllData('sync-reviews')
     .then(function (data) {
       console.log('sync data', data);
       for (var dt of data) {
-        const { id, ...item } = dt;
+        const id = dt.id;
+        const item = Object.assign({}, dt);
+        delete item.id;
         console.log('item', item);
         DBHelper.addReview(item)
           .then(function (res) {
