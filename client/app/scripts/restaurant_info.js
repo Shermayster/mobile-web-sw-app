@@ -347,7 +347,7 @@ function postReview(formData) {
       resetForm();
     });
   }
- 
+
 
   function addReviewToSyncSW() {
     readDataByKey('reviews', id).then(res => {
@@ -468,7 +468,8 @@ window.addEventListener('offline', onOffline);
 function onOnline() {
   const toaster = document.querySelector('#toast');
   toaster.classList = ['show'];
-  updateView();
+  syncData();
+
   toaster.innerText = 'You are online';
   setTimeout(() => {
     toaster.classList = [];
@@ -482,6 +483,16 @@ function onOffline() {
   setTimeout(() => {
     toaster.classList = [];
   }, 2000)
+}
+
+function syncData() {
+  syncSubmittedPosts().then(() => {
+    syncDeleteReviews().then(() => {
+      syncIsFavorite().then(() => {
+        updateView();
+      })
+    })
+  })
 }
 
 

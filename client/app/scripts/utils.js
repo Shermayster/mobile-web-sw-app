@@ -6,7 +6,7 @@ var dbPromise = idb.open('restaurants-store', 1, db => {
   if (!db.objectStoreNames.contains('reviews')) {
     db.createObjectStore('reviews');
   }
-  
+
   if (!db.objectStoreNames.contains('sync-reviews')) {
     db.createObjectStore('sync-reviews');
   }
@@ -105,4 +105,71 @@ class ImageHelper {
     source.className = 'restaurant-img lazyload';
     return source;
   }
+}
+
+function syncIsFavorite() {
+  return readAllData('sync-is-favorite')
+  .then(function (data) {
+    console.log('sync data', data);
+    for (var dt of data) {
+      const id = Object.keys(dt)[0];
+      const isFavorite = dt[id];
+      DBHelper.manageFavorite(id, isFavorite)
+        .then(function (res) {
+          console.log('Sent data', res);
+          if (res) {
+            console.log('Favorite is updated', res);
+            deleteItemFromData('sync-is-favorite', res.id.toString());
+          }
+        })
+        .catch(function (err) {
+          console.log('Error while sending data', err);
+        });
+    }
+  })
+}
+
+function syncDeleteReviews() {
+  return readAllData('sync-deleted-reviews')
+    .then(function (data) {
+      console.log('sync data', data);
+      for (var dt of data) {
+        DBHelper.deleteReview(dt.id)
+          .then(function (res) {
+            console.log('Sent data', res);
+            if (res) {
+              console.log('delete sync-deleted-reviews', res);
+              deleteItemFromData('sync-deleted-reviews', res.id);
+            }
+          })
+          .catch(function (err) {
+            console.log('Error while sending data', err);
+          });
+      }
+    })
+}
+
+function syncSubmittedPosts(){
+  readAllData('sync-reviews')
+    .then(function (data) {
+      console.log('sync data', data);
+      for (var dt of data) {
+        const { id, ...item } = dt;
+        console.log('item', item);
+        DBHelper.addReview(item)
+          .then(function (res) {
+            console.log('Sent data', res);
+            if (res.ok) {
+              res.json()
+                .then(resData => {
+                  console.log('delete sync-post', resData);
+                  deleteItemFromData('sync-reviews', id);
+                });
+            }
+          })
+          .catch(function (err) {
+            console.log('Error while sending data', err);
+          });
+      }
+    })
 }
